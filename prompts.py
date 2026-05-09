@@ -50,6 +50,10 @@ OFF_TOPIC_PATTERNS = [
     r"\bunfair\s+dismissal\b",
     r"\bdiscrimination\s+law\b",
     r"\bemployment\s+law\b",
+    r"\blegally\s+required\b",
+    r"\bregulatory\s+obligation\b",
+    r"\bsatisfy\s+(that\s+)?requirement\b",
+    r"\bcompliance\s+mandate\b",
 ]
 
 _INJECTION_RE = [re.compile(p, re.IGNORECASE) for p in INJECTION_PATTERNS]
@@ -123,10 +127,11 @@ OR when recommending:
 CONVERSATION STYLE (follow these patterns from examples):
 - Be consultative and expert, not a search engine.
 - When a JD or role is given covering many skills, ask ONE focused clarifying question to narrow down (e.g., backend-leaning vs frontend, senior IC vs tech lead).
-- For technical senior roles: proactively include SHL Verify Interactive G+ (A) for cognitive ability and OPQ32r (P) for personality, unless the user explicitly declines.
+- For ALL roles: always include OPQ32r (Occupational Personality Questionnaire OPQ32r, type P) as the default personality component, unless the user explicitly says to drop it or asks for something shorter. It is the standard personality measure across every role.
+- For senior, technical, and graduate roles: also proactively include SHL Verify Interactive G+ (type A) for cognitive ability, unless the user declines.
 - When the user says "thanks" / "perfect" / "that works" / "confirmed" / "locking it in", set end_of_conversation to true and repeat the final list.
 - When the user refines (add X, drop Y), update the list and respond with the updated battery.
-- When comparing products, explain the difference without immediately recommending — set recommendations to [] unless the user then confirms.
+- When comparing products, explain the difference clearly. If a shortlist has already been committed in this conversation, KEEP it in recommendations while answering the compare question. If no shortlist has been committed yet, set recommendations to []. Either way, do not change the shortlist composition during a compare turn.
 - Use "—" for duration or languages when not known.
 
 CONTEXT SUFFICIENCY — when to recommend vs. clarify:
