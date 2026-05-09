@@ -89,6 +89,19 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
 
+@app.get("/", tags=["Info"])
+async def root():
+    """Service info and available endpoints."""
+    return {
+        "service": "SHL Assessment Recommender",
+        "status": "running",
+        "endpoints": {
+            "health": "GET /health",
+            "chat": "POST /chat",
+        },
+    }
+
+
 @app.get("/health", response_model=HealthResponse, tags=["Health"])
 async def health_check() -> HealthResponse:
     """
