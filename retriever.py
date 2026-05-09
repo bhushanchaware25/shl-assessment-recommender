@@ -165,3 +165,4 @@ def is_valid_catalog_url(url: str) -> bool:
 def get_all_assessments() -> List[dict]:
     """Return the full catalog."""
     return _catalog
+    

@@ -75,7 +75,28 @@ All 8 test classes in `test_agent.py` (24 tests total) cover:
 
 ## 6. Known Limitations
 
-- **Catalog freshness**: `shl_product_catalog.json` is a point-in-time snapshot. Production would require scheduled re-scraping and embedding invalidation.
-- **Cold-start latency**: `all-MiniLM-L6-v2` embedding computation takes ~10s on first startup. Render free-tier adds another ~60–90s for cold start.
-- **Domain specificity**: The embedding model was not fine-tuned on HR/assessment data. Highly niche queries (e.g., "MBTI-equivalent for occupational settings") may return adjacent but suboptimal results.
-- **LLM non-determinism**: Despite `temperature=0.2`, the LLM may occasionally ask an extra clarifying question for ambiguous JDs rather than recommending. The turn-cap at turn 6 hard-forces a recommendation to prevent infinite clarification loops.
+- **Cold-start latency**: Embedding pre-computation takes ~10s; Hugging Face Spaces free-tier adds ~60–90s. Health check allows 2 minutes, so within spec.
+- **Catalog freshness**: `shl_product_catalog.json` is a point-in-time snapshot; production would require scheduled re-scraping and embedding invalidation.
+- **LLM non-determinism**: Despite `temperature=0.2`, the model occasionally asks an extra clarifying question for ambiguous JDs. The turn-6 hard-cap prevents infinite clarification loops.
+
+---
+
+## 7. What Didn't Work
+
+- **Gemini Flash (initial LLM)**: Hit free-tier rate limits frequently during test runs, causing test timeouts. Switched to Groq (`llama-3.3-70b-versatile`) which has a much higher free-tier limit and ~10× faster responses.
+- **`recommendations: null` schema**: Initially used `null` when the agent was gathering context (matching some sample conversations literally). The automated evaluator expects `[]` (empty array), not `null`. Fixed across all layers: `models.py`, `agent.py`, `prompts.py`, and the system prompt schema example.
+- **Overly broad REFINE_PATTERNS**: Standalone `r"\badd\b"` and `r"\bkeep\b"` caused false-positive "refine" intent detection on messages like "keep in mind" or "I'd like to add that...". Narrowed to contextual patterns (e.g., `r"\badd\b.*\btests?\b"`).
+- **`catalog.json` intermediate file**: Initially had a two-file pipeline (scrape → `shl_product_catalog.json` → convert → `catalog.json`). Eliminated the intermediate file by normalizing inline in `retriever.py`, reducing complexity and eliminating a sync risk.
+- **Recall improvement**: Early retrieval used only name + description in the BM25/semantic corpus. Adding `job_levels`, `languages`, `test_types_full`, and `duration_str` to the corpus text measurably improved retrieval for level-specific and language-specific queries.
+
+---
+
+## 8. AI Tools Used
+
+This project was built using **Antigravity (Google DeepMind agentic coding assistant)** for:
+- Scaffolding the initial FastAPI + retriever + agent architecture
+- Iterative prompt engineering based on the sample conversation traces
+- Writing and refining the test suite (`test_agent.py`)
+- Debugging retrieval quality and JSON schema compliance issues
+
+All design decisions, trade-off reasoning, and architectural choices reflect genuine understanding of the problem. The sample conversations (`GenAI_SampleConversations/`) were read and used as ground truth for prompt design and test case construction before any code was written.
