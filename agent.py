@@ -43,7 +43,7 @@ TEMPERATURE = 0.2
 
 # ── Agent constants ───────────────────────────────────────────────────────────
 MAX_TURNS = 8
-FORCE_RECOMMEND_BY = 6
+FORCE_RECOMMEND_BY = 4
 
 # ── Role / context keyword patterns ──────────────────────────────────────────
 ROLE_PATTERNS = [
